@@ -1,4 +1,15 @@
-# Welcome to your Lovable project
+# Data Quality Management - Human-in-the-Loop (HLT)
+
+A comprehensive web application for managing data quality issues through AI-powered recommendations and human oversight.
+
+## Features
+
+- **Dashboard**: Overview of data quality metrics and pending issues
+- **Issues Management**: Browse, filter, and categorize data quality problems
+- **AI-Powered Review**: Review AI-generated fix recommendations with confidence scores
+- **Human Oversight**: Approve, reject, or modify AI suggestions before implementation
+- **Data Context**: Drill down into sample data and rule violations
+- **History Tracking**: Monitor remediated vs. ignored issues over time
 
 ## Project info
 
