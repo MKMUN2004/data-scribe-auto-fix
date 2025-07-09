@@ -14,11 +14,11 @@ export const mockIssues: DataIssue[] = [
     status: "pending",
     confidence: 0.95,
     aiRecommendation: {
-      action: "Fill missing emails using contact history and external data sources",
-      explanation: "Analysis shows 89% of missing emails can be recovered from order history, support tickets, and social media profiles",
-      confidence: 0.89,
-      suggestedFix: "UPDATE customers SET email = COALESCE(email, contact_history.email, external_data.email) WHERE email IS NULL",
-      impactAnalysis: "Will enable marketing to 127 additional customers, estimated $15,000 monthly revenue impact"
+      reasoning_and_remediation: "The data quality test failed because the 'email' column in the 'customers' table contains NULL values where previously there were none. Analysis shows 89% of missing emails can be recovered from order history, support tickets, and social media profiles. Remediation involves updating records using available contact data from related tables and external sources. This will enable marketing to 127 additional customers with an estimated $15,000 monthly revenue impact.",
+      gcp_commands: [
+        "bq query --use_legacy_sql=false 'UPDATE customers SET email = COALESCE(email, contact_history.email, external_data.email) WHERE email IS NULL'",
+        "bq query --use_legacy_sql=false 'INSERT INTO data_quality_log (table_name, column_name, fix_applied, timestamp) VALUES (\"customers\", \"email\", \"filled_missing_emails\", CURRENT_TIMESTAMP())'"
+      ]
     },
     sampleData: [
       {
@@ -48,11 +48,12 @@ export const mockIssues: DataIssue[] = [
     status: "approved",
     confidence: 0.87,
     aiRecommendation: {
-      action: "Merge duplicate products and standardize naming convention",
-      explanation: "Fuzzy matching identified products with >90% similarity that should be consolidated",
-      confidence: 0.87,
-      suggestedFix: "Merge duplicates and update all references to use canonical product IDs",
-      impactAnalysis: "Will improve search accuracy and reduce inventory confusion"
+      reasoning_and_remediation: "The data quality test failed because the 'product_name' column in the 'products' table contains duplicate values. Fuzzy matching identified products with >90% similarity that should be consolidated. The root cause is inconsistent data entry creating multiple records for the same product. Remediation involves de-duplicating records and implementing preventative measures to maintain uniqueness.",
+      gcp_commands: [
+        "bq query --use_legacy_sql=false --destination_table products_deduplicated_temp --replace 'SELECT * FROM products QUALIFY ROW_NUMBER() OVER (PARTITION BY name ORDER BY created_date DESC) = 1'",
+        "bq rm -f products",
+        "bq mv products_deduplicated_temp products"
+      ]
     },
     sampleData: [
       {
@@ -76,11 +77,11 @@ export const mockIssues: DataIssue[] = [
     status: "rejected",
     confidence: 0.76,
     aiRecommendation: {
-      action: "Standardize all dates to ISO 8601 format",
-      explanation: "Multiple date formats detected: MM/DD/YYYY, DD-MM-YYYY, and ISO 8601",
-      confidence: 0.76,
-      suggestedFix: "Convert all dates to YYYY-MM-DD HH:MM:SS format",
-      impactAnalysis: "Will improve data consistency and prevent timezone issues"
+      reasoning_and_remediation: "The data quality test failed because the 'created_date' column in the 'orders' table contains inconsistent date formats (MM/DD/YYYY, DD-MM-YYYY, and ISO 8601). This inconsistency can cause parsing errors and timezone issues in downstream applications. Remediation involves standardizing all dates to ISO 8601 format (YYYY-MM-DD HH:MM:SS) for consistency.",
+      gcp_commands: [
+        "bq query --use_legacy_sql=false 'UPDATE orders SET created_date = PARSE_DATETIME(\"%Y-%m-%d %H:%M:%S\", FORMAT_DATETIME(\"%Y-%m-%d %H:%M:%S\", PARSE_DATETIME(\"%m/%d/%Y\", created_date))) WHERE REGEXP_CONTAINS(created_date, r\"^\\d{2}/\\d{2}/\\d{4}$\")'",
+        "bq query --use_legacy_sql=false 'UPDATE orders SET created_date = PARSE_DATETIME(\"%Y-%m-%d %H:%M:%S\", FORMAT_DATETIME(\"%Y-%m-%d %H:%M:%S\", PARSE_DATETIME(\"%d-%m-%Y\", created_date))) WHERE REGEXP_CONTAINS(created_date, r\"^\\d{2}-\\d{2}-\\d{4}$\")'"
+      ]
     },
     sampleData: [
       {

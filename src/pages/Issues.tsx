@@ -157,7 +157,7 @@ const Issues = () => {
 
                   <div className="bg-muted/50 p-3 rounded-lg">
                     <div className="text-sm font-medium mb-1">AI Recommendation:</div>
-                    <div className="text-sm text-muted-foreground">{issue.aiRecommendation.action}</div>
+                    <div className="text-sm text-muted-foreground">{issue.aiRecommendation.reasoning_and_remediation.split('.')[0]}.</div>
                   </div>
                 </div>
 

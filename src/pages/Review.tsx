@@ -123,37 +123,27 @@ const Review = () => {
               </CardTitle>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Confidence:</span>
-                <Progress value={issue.aiRecommendation.confidence * 100} className="w-24" />
-                <span className="text-sm font-medium">{Math.round(issue.aiRecommendation.confidence * 100)}%</span>
+                <Progress value={issue.confidence * 100} className="w-24" />
+                <span className="text-sm font-medium">{Math.round(issue.confidence * 100)}%</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-medium mb-2">Recommended Action</h4>
+                <h4 className="font-medium mb-2">Reasoning & Remediation</h4>
                 <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                  {issue.aiRecommendation.action}
+                  {issue.aiRecommendation.reasoning_and_remediation}
                 </p>
               </div>
 
               <div>
-                <h4 className="font-medium mb-2">Explanation</h4>
-                <p className="text-sm text-muted-foreground">
-                  {issue.aiRecommendation.explanation}
-                </p>
-              </div>
-
-              <div>
-                <h4 className="font-medium mb-2">Suggested Fix</h4>
-                <div className="bg-muted/50 p-3 rounded-lg">
-                  <code className="text-sm font-mono">{issue.aiRecommendation.suggestedFix}</code>
+                <h4 className="font-medium mb-2">GCP Commands</h4>
+                <div className="bg-muted/50 p-3 rounded-lg space-y-2">
+                  {issue.aiRecommendation.gcp_commands.map((command, index) => (
+                    <div key={index} className="font-mono text-sm break-all p-2 bg-background rounded border">
+                      {command}
+                    </div>
+                  ))}
                 </div>
-              </div>
-
-              <div>
-                <h4 className="font-medium mb-2">Impact Analysis</h4>
-                <p className="text-sm text-muted-foreground">
-                  {issue.aiRecommendation.impactAnalysis}
-                </p>
               </div>
             </CardContent>
           </Card>
@@ -266,7 +256,7 @@ const Review = () => {
             <CardContent className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span>AI Confidence</span>
-                <span className="font-medium">{Math.round(issue.aiRecommendation.confidence * 100)}%</span>
+                <span className="font-medium">{Math.round(issue.confidence * 100)}%</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Data Quality Impact</span>

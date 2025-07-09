@@ -11,11 +11,8 @@ export interface DataIssue {
   status: 'pending' | 'approved' | 'rejected' | 'fixed'
   confidence: number
   aiRecommendation: {
-    action: string
-    explanation: string
-    confidence: number
-    suggestedFix: string
-    impactAnalysis: string
+    reasoning_and_remediation: string
+    gcp_commands: string[]
   }
   sampleData: Array<{
     rowId: string
