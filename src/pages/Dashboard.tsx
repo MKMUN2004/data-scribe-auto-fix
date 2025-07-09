@@ -79,15 +79,15 @@ const Dashboard = () => {
           
           <div className="flex justify-between text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              <div className="w-3 h-3 rounded-full bg-success"></div>
               <span>Fixed: {mockMetrics.fixed}</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+              <div className="w-3 h-3 rounded-full bg-info"></div>
               <span>Approved: {mockMetrics.approved}</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-destructive"></div>
               <span>Rejected: {mockMetrics.rejected}</span>
             </div>
           </div>
@@ -125,9 +125,9 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    {issue.status === 'pending' && <Clock className="h-4 w-4 text-orange-500" />}
-                    {issue.status === 'approved' && <CheckCircle className="h-4 w-4 text-green-500" />}
-                    {issue.status === 'rejected' && <XCircle className="h-4 w-4 text-red-500" />}
+                    {issue.status === 'pending' && <Clock className="h-4 w-4 text-warning" />}
+                    {issue.status === 'approved' && <CheckCircle className="h-4 w-4 text-success" />}
+                    {issue.status === 'rejected' && <XCircle className="h-4 w-4 text-destructive" />}
                   </div>
                 </div>
               </Link>
