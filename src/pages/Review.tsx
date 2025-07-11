@@ -7,8 +7,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { ArrowLeft, CheckCircle, XCircle, AlertTriangle, Database, Lightbulb } from "lucide-react"
-import { mockIssues } from "@/data/mockData"
 import { toast } from "@/hooks/use-toast"
+import { useIssues } from "@/contexts/IssuesContext"
 
 const Review = () => {
   const { id } = useParams()
@@ -16,7 +16,8 @@ const Review = () => {
   const [notes, setNotes] = useState("")
   const [modifiedFix, setModifiedFix] = useState("")
   
-  const issue = mockIssues.find(i => i.id === id)
+  const { convertedIssues } = useIssues()
+  const issue = convertedIssues.find(i => i.id === id)
   
   if (!issue) {
     return (

@@ -5,19 +5,26 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AlertCircle, CheckCircle, Clock, XCircle, Search, Filter } from "lucide-react"
-import { mockIssues } from "@/data/mockData"
 import { Link } from "react-router-dom"
 import { DataIssue } from "@/types/DataQuality"
 import { FileUpload } from "@/components/FileUpload"
+import { useIssues } from "@/contexts/IssuesContext"
 
 const Issues = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [severityFilter, setSeverityFilter] = useState<string>("all")
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
-  const [apiResults, setApiResults] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [useApiData, setUseApiData] = useState(false)
+  
+  const { 
+    apiResults, 
+    setApiResults, 
+    useApiData, 
+    setUseApiData, 
+    convertedIssues, 
+    setConvertedIssues 
+  } = useIssues()
 
   // Convert API results to DataIssue format
   const convertApiResults = (results: any[]): DataIssue[] => {
@@ -48,10 +55,12 @@ const Issues = () => {
 
   const handleAnalysisComplete = (results: any[]) => {
     setApiResults(results)
+    const converted = convertApiResults(results)
+    setConvertedIssues(converted)
     setUseApiData(true)
   }
 
-  const allIssues = useApiData ? convertApiResults(apiResults) : mockIssues
+  const allIssues = useApiData ? convertedIssues : []
   const filteredIssues = allIssues.filter((issue) => {
     const matchesSearch = issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          issue.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -93,7 +102,7 @@ const Issues = () => {
         setIsLoading={setIsLoading}
       />
 
-      {/* Reset to Mock Data */}
+      {/* API Results Info */}
       {useApiData && (
         <Card className="border-dashed">
           <CardContent className="p-4">
@@ -106,9 +115,13 @@ const Issues = () => {
               </div>
               <Button 
                 variant="outline" 
-                onClick={() => setUseApiData(false)}
+                onClick={() => {
+                  setUseApiData(false)
+                  setApiResults([])
+                  setConvertedIssues([])
+                }}
               >
-                View Mock Data
+                Clear Results
               </Button>
             </div>
           </CardContent>
@@ -245,7 +258,9 @@ const Issues = () => {
             <CardContent className="text-center py-12">
               <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium mb-2">No issues found</h3>
-              <p className="text-muted-foreground">Try adjusting your filters or search terms</p>
+              <p className="text-muted-foreground">
+                {useApiData ? "Try adjusting your filters or search terms" : "Upload an Excel file to analyze data quality issues"}
+              </p>
             </CardContent>
           </Card>
         )}
