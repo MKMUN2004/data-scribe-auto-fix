@@ -8,14 +8,51 @@ import { AlertCircle, CheckCircle, Clock, XCircle, Search, Filter } from "lucide
 import { mockIssues } from "@/data/mockData"
 import { Link } from "react-router-dom"
 import { DataIssue } from "@/types/DataQuality"
+import { FileUpload } from "@/components/FileUpload"
 
 const Issues = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [severityFilter, setSeverityFilter] = useState<string>("all")
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
+  const [apiResults, setApiResults] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [useApiData, setUseApiData] = useState(false)
 
-  const filteredIssues = mockIssues.filter((issue) => {
+  // Convert API results to DataIssue format
+  const convertApiResults = (results: any[]): DataIssue[] => {
+    return results.map((result, index) => ({
+      id: `api-${index}`,
+      title: result.issue || "Data Quality Issue",
+      description: result.issue || "No description available",
+      severity: result.remediation?.gcp_commands?.length > 2 ? 'high' : 'medium',
+      status: 'pending' as const,
+      category: 'validation' as const,
+      dataset: result.context?.table_name || "unknown",
+      column: result.context?.column_name || "unknown",
+      affectedRows: parseInt(result.context?.affected_rows) || 0,
+      confidence: 0.85,
+      detectedAt: new Date(),
+      sampleData: [{
+        rowId: "1",
+        originalValue: "N/A",
+        suggestedValue: "N/A",
+        context: {}
+      }],
+      aiRecommendation: result.remediation || {
+        reasoning_and_remediation: "No remediation available",
+        gcp_commands: []
+      }
+    }))
+  }
+
+  const handleAnalysisComplete = (results: any[]) => {
+    setApiResults(results)
+    setUseApiData(true)
+  }
+
+  const allIssues = useApiData ? convertApiResults(apiResults) : mockIssues
+  const filteredIssues = allIssues.filter((issue) => {
     const matchesSearch = issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          issue.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          issue.dataset.toLowerCase().includes(searchTerm.toLowerCase())
@@ -46,8 +83,37 @@ const Issues = () => {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Data Quality Issues</h2>
-        <p className="text-muted-foreground">View and manage all detected data quality issues</p>
+        <p className="text-muted-foreground">Upload Excel files to analyze data quality issues or view existing issues</p>
       </div>
+
+      {/* File Upload */}
+      <FileUpload 
+        onAnalysisComplete={handleAnalysisComplete}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+      />
+
+      {/* Reset to Mock Data */}
+      {useApiData && (
+        <Card className="border-dashed">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-medium">Showing API Results</div>
+                <div className="text-sm text-muted-foreground">
+                  Currently displaying {apiResults.length} issues from uploaded file
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => setUseApiData(false)}
+              >
+                View Mock Data
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters */}
       <Card>
