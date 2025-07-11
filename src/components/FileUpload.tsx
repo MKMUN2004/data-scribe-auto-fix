@@ -53,12 +53,21 @@ export const FileUpload = ({ onAnalysisComplete, isLoading, setIsLoading }: File
         body: formData,
       });
 
+      const text = await response.text(); // Get raw text response
+      console.log("Raw response text:", text); // Debugging line
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}\n${text}`);
       }
 
-      const results = await response.json();
-      
+      let results;
+      try {
+        results = JSON.parse(text); // Validate and parse JSON
+      } catch (jsonError) {
+        console.error("JSON parse error:", jsonError);
+        throw new Error("Server returned invalid JSON. Check console for raw response.");
+      }
+
       if (results.error) {
         throw new Error(results.error);
       }
