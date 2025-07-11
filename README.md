@@ -26,6 +26,7 @@ A comprehensive web application for managing data quality issues through AI-powe
 - **Lucide React** - Beautiful icons
 
 ### Backend
+- **Firebase, BigQuery, Cloud Run** - GCP-native services
 - **Flask** - Python web framework
 - **Google Gemini AI** - AI-powered analysis and recommendations
 - **LangChain** - AI integration framework
@@ -96,15 +97,9 @@ The backend will be available at `http://localhost:5000`
    npm run build
    ```
 
-2. **Deploy to Vercel**
+2. **Deploy to Firebase**
    ```bash
-   npx vercel
-   ```
-
-   Or **Deploy to Netlify**
-   ```bash
-   npm install -g netlify-cli
-   netlify deploy --prod --dir=dist
+   firebase deploy
    ```
 
 ### Backend Deployment (Google Cloud Run/Heroku)
@@ -136,25 +131,11 @@ The backend will be available at `http://localhost:5000`
    gcloud run deploy data-quality-api --source . --port 5000 --region us-central1
    ```
 
-#### Heroku
-
-1. **Create Procfile**:
-   ```
-   web: python app.py
-   ```
-
-2. **Deploy**:
-   ```bash
-   heroku create your-app-name
-   git push heroku main
-   ```
-
 ### Environment Variables
 
 For production deployment, set these environment variables:
 
 - `GEMINI_API_KEY`: Your Google Gemini API key
-- `FLASK_ENV`: Set to `production`
 
 ## 📖 Usage
 
