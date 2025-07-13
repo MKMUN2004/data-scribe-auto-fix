@@ -16,7 +16,9 @@ load_dotenv()  # Load environment variables from .env
 app = Flask(__name__)
 CORS(app, resources={r"/analyze": {"origins": [
     "https://team-pikachu-5f4c8.firebaseapp.com",
-    "https://team-pikachu-5f4c8.web.app"
+    "https://team-pikachu-5f4c8.web.app",
+    "https://team-pikachu-5f4c8.firebaseapp.com/issues",
+    "https://team-pikachu-5f4c8.web.app/issues"
 ]}})
 
 UPLOAD_FOLDER = mkdtemp()
