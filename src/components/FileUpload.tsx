@@ -48,7 +48,7 @@ export const FileUpload = ({ onAnalysisComplete, isLoading, setIsLoading }: File
     formData.append("sheet_name", sheetName.trim());
 
     try {
-      const response = await fetch("http://localhost:5000/analyze", {
+      const response = await fetch("https://ai-data-remediation.onrender.com/analyze", {
         method: "POST",
         body: formData,
       });
