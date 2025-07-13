@@ -14,7 +14,11 @@ load_dotenv()  # Load environment variables from .env
 
 # === Flask App Setup ===
 app = Flask(__name__)
-CORS(app, origins=["https://team-pikachu-5f4c8.firebaseapp.com", "https://team-pikachu-5f4c8.web.app"])
+CORS(app, resources={r"/analyze": {"origins": [
+    "https://team-pikachu-5f4c8.firebaseapp.com",
+    "https://team-pikachu-5f4c8.web.app"
+]}})
+
 UPLOAD_FOLDER = mkdtemp()
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
