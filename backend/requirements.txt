@@ -1,0 +1,8 @@
+flask
+flask-cors
+pandas
+openpyxl
+langchain
+langchain-google-genai
+python-dotenv
+werkzeug
