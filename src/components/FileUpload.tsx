@@ -13,48 +13,40 @@ interface FileUploadProps {
 }
 
 export const FileUpload = ({ onAnalysisComplete, isLoading, setIsLoading }: FileUploadProps) => {
-  const [file, setFile] = useState<File | null>(null);
+  const [bucketName, setBucketName] = useState("");
+  const [blobName, setBlobName] = useState("");
   const [sheetName, setSheetName] = useState("");
   const { toast } = useToast();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      if (!selectedFile.name.match(/\.(xlsx|xls)$/)) {
-        toast({
-          title: "Invalid file type",
-          description: "Please select an Excel file (.xlsx or .xls)",
-          variant: "destructive",
-        });
-        return;
-      }
-      setFile(selectedFile);
-    }
-  };
-
   const handleAnalyze = async () => {
-    if (!file || !sheetName.trim()) {
+    if (!bucketName.trim() || !blobName.trim() || !sheetName.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please select a file and enter the sheet name",
+        description: "Please enter bucket name, file name, and sheet name",
         variant: "destructive",
       });
       return;
     }
 
     setIsLoading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("sheet_name", sheetName.trim());
+
+    const payload = {
+      bucket_name: bucketName.trim(),
+      blob_name: blobName.trim(),
+      sheet_name: sheetName.trim(),
+    };
 
     try {
       const response = await fetch("https://ai-data-remediation.onrender.com/analyze", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
 
-      const text = await response.text(); // Get raw text response
-      console.log("Raw response text:", text); // Debugging line
+      const text = await response.text();
+      console.log("Raw response text:", text);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}\n${text}`);
@@ -62,7 +54,7 @@ export const FileUpload = ({ onAnalysisComplete, isLoading, setIsLoading }: File
 
       let results;
       try {
-        results = JSON.parse(text); // Validate and parse JSON
+        results = JSON.parse(text);
       } catch (jsonError) {
         console.error("JSON parse error:", jsonError);
         throw new Error("Server returned invalid JSON. Check console for raw response.");
@@ -94,21 +86,33 @@ export const FileUpload = ({ onAnalysisComplete, isLoading, setIsLoading }: File
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileSpreadsheet className="h-5 w-5" />
-          Upload Data Quality Report
+          Analyze Data Quality Report from GCS
         </CardTitle>
         <CardDescription>
-          Upload your Excel file and specify the sheet name to analyze data quality issues
+          Enter your GCS bucket, file name, and sheet name to analyze data quality issues.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="file-upload">Excel File</Label>
+            <Label htmlFor="bucket-name">GCS Bucket Name</Label>
             <Input
-              id="file-upload"
-              type="file"
-              accept=".xlsx,.xls"
-              onChange={handleFileChange}
+              id="bucket-name"
+              type="text"
+              placeholder="e.g. my-bucket"
+              value={bucketName}
+              onChange={(e) => setBucketName(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="blob-name">GCS File Name (Blob Name)</Label>
+            <Input
+              id="blob-name"
+              type="text"
+              placeholder="e.g. myfile.xlsx"
+              value={blobName}
+              onChange={(e) => setBlobName(e.target.value)}
               disabled={isLoading}
             />
           </div>
@@ -117,7 +121,7 @@ export const FileUpload = ({ onAnalysisComplete, isLoading, setIsLoading }: File
             <Input
               id="sheet-name"
               type="text"
-              placeholder="Enter sheet name"
+              placeholder="e.g. Sheet1"
               value={sheetName}
               onChange={(e) => setSheetName(e.target.value)}
               disabled={isLoading}
@@ -126,7 +130,7 @@ export const FileUpload = ({ onAnalysisComplete, isLoading, setIsLoading }: File
         </div>
         <Button 
           onClick={handleAnalyze} 
-          disabled={!file || !sheetName.trim() || isLoading}
+          disabled={!bucketName.trim() || !blobName.trim() || !sheetName.trim() || isLoading}
           className="w-full"
         >
           {isLoading ? (

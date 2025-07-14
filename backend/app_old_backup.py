@@ -1,4 +1,3 @@
-from google.cloud import storage
 import os
 from dotenv import load_dotenv
 import pandas as pd
@@ -19,9 +18,7 @@ CORS(app, resources={r"/analyze": {"origins": [
     "https://team-pikachu-5f4c8.firebaseapp.com",
     "https://team-pikachu-5f4c8.web.app",
     "https://team-pikachu-5f4c8.firebaseapp.com/issues",
-    "https://team-pikachu-5f4c8.web.app/issues",
-    "http://localhost:8080/issues",
-    "http://localhost:8080/"
+    "https://team-pikachu-5f4c8.web.app/issues"
 ]}})
 
 UPLOAD_FOLDER = mkdtemp()
@@ -83,26 +80,21 @@ def generate_remediation_action(row):
 @app.route("/analyze", methods=["POST"])
 def analyze_excel():
     try:
-        # Get bucket, blob, and sheet name from request
-        data = request.get_json()
-        bucket_name = data.get("bucket_name")
-        blob_name = data.get("blob_name")
-        sheet_name = data.get("sheet_name")
+        # Get file and sheet name from request
+        file = request.files.get("file")
+        sheet_name = request.form.get("sheet_name")
 
-        if not bucket_name or not blob_name or not sheet_name:
-            return jsonify({"error": "Missing bucket_name, blob_name, or sheet_name in request"}), 400
+        if not file or not sheet_name:
+            return jsonify({"error": "Missing file or sheet_name in request"}), 400
 
-        # Download XLSX file from GCS to a temp file
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
-        blob = bucket.blob(blob_name)
-        local_path = os.path.join(app.config["UPLOAD_FOLDER"], secure_filename(blob_name))
-        blob.download_to_filename(local_path)
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(filepath)
 
         # Read Excel with fixed header row
-        df = pd.read_excel(local_path, sheet_name=sheet_name, header=2)
+        df = pd.read_excel(filepath, sheet_name=sheet_name, header=2)
         df.columns = df.columns.str.strip()
-        df = df.fillna("")
+        df = df.fillna("")  # <<< ADD THIS LINE
 
         # Filter failures/warnings
         filtered_df = df[df['result_status'].str.lower() != 'passed']
