@@ -2,6 +2,8 @@
 
 A comprehensive web application for managing data quality issues through AI-powered recommendations and human oversight. This system allows users to upload Excel files, analyze data quality issues using AI, and manage remediation actions through an intuitive interface.
 
+**Live URL**: https://team-pikachu-5f4c8.firebaseapp.com/
+
 ## 🚀 Features
 
 - **Dashboard**: Overview of data quality metrics and pending issues
